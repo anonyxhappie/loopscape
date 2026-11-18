@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Shell } from "./Shell";
-import { Search, Heart, Folder } from "lucide-react";
+import { Search, Heart, Folder, User, Plus } from "lucide-react";
+import { UploadModal } from "@/components/upload/UploadModal";
 
 export function Header() {
   const location = useLocation();
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
 
   const isActive = (path: string) =>
     location.pathname === path
@@ -11,46 +14,67 @@ export function Header() {
       : "text-muted hover:text-foreground";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-background/80 backdrop-blur-xl">
-      <Shell className="flex h-16 items-center justify-between">
-        <Link
-          to="/"
-          className="flex items-center gap-2.5 text-lg font-bold tracking-tighter"
-          aria-label="Loopscape home"
-        >
-          <span className="grid h-7 w-7 -rotate-6 place-items-center rounded-lg border-[1.5px] border-lime text-lime text-sm">
-            ↗
-          </span>
-          <span>loopscape</span>
-        </Link>
+    <>
+      <UploadModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} />
 
-        <nav className="flex items-center gap-5 text-sm" aria-label="Main navigation">
-          <Link to="/explore" className={`transition-colors ${isActive("/explore")}`}>
-            Explore
-          </Link>
+      <header className="sticky top-0 z-50 border-b border-line bg-background/80 backdrop-blur-xl">
+        <Shell className="flex h-16 items-center justify-between">
           <Link
-            to="/favorites"
-            className={`flex items-center gap-1.5 transition-colors ${isActive("/favorites")}`}
+            to="/"
+            className="flex items-center gap-2.5 text-lg font-bold tracking-tighter"
+            aria-label="Loopscape home"
           >
-            <Heart size={14} />
-            <span className="hidden sm:inline">Favorites</span>
+            <span className="grid h-7 w-7 -rotate-6 place-items-center rounded-lg border-[1.5px] border-lime text-lime text-sm">
+              ↗
+            </span>
+            <span>loopscape</span>
           </Link>
-          <Link
-            to="/collections"
-            className={`flex items-center gap-1.5 transition-colors ${isActive("/collections")}`}
-          >
-            <Folder size={14} />
-            <span className="hidden sm:inline">Collections</span>
-          </Link>
-          <Link
-            to="/explore"
-            className="grid h-8 w-8 place-items-center rounded-full border border-line text-muted hover:border-lime/40 hover:text-foreground transition-colors"
-            aria-label="Search loops"
-          >
-            <Search size={15} />
-          </Link>
-        </nav>
-      </Shell>
-    </header>
+
+          <nav className="flex items-center gap-4 sm:gap-5 text-sm" aria-label="Main navigation">
+            <Link to="/explore" className={`transition-colors ${isActive("/explore")}`}>
+              Explore
+            </Link>
+            <Link
+              to="/favorites"
+              className={`flex items-center gap-1.5 transition-colors ${isActive("/favorites")}`}
+            >
+              <Heart size={14} />
+              <span className="hidden sm:inline">Favorites</span>
+            </Link>
+            <Link
+              to="/collections"
+              className={`flex items-center gap-1.5 transition-colors ${isActive("/collections")}`}
+            >
+              <Folder size={14} />
+              <span className="hidden sm:inline">Collections</span>
+            </Link>
+            <Link
+              to="/profile"
+              className={`flex items-center gap-1.5 transition-colors ${isActive("/profile")}`}
+            >
+              <User size={14} />
+              <span className="hidden sm:inline">Profile</span>
+            </Link>
+
+            <button
+              onClick={() => setIsUploadOpen(true)}
+              className="inline-flex items-center gap-1 rounded-full bg-lime/10 border border-lime/30 px-3 py-1 text-xs font-bold text-lime hover:bg-lime hover:text-background transition-all"
+              aria-label="Upload loop"
+            >
+              <Plus size={13} />
+              <span>Upload</span>
+            </button>
+
+            <Link
+              to="/explore"
+              className="grid h-8 w-8 place-items-center rounded-full border border-line text-muted hover:border-lime/40 hover:text-foreground transition-colors"
+              aria-label="Search loops"
+            >
+              <Search size={15} />
+            </Link>
+          </nav>
+        </Shell>
+      </header>
+    </>
   );
 }

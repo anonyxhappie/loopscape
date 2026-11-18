@@ -23,7 +23,7 @@ export async function loadCatalogue(): Promise<Catalogue> {
 }
 
 export function getLoopBySlug(items: LoopItem[], slug: string): LoopItem | undefined {
-  return items.find((item) => item.slug === slug);
+  return items.find((item) => item.slug === slug || item.id === slug);
 }
 
 export function getLoopsByCategory(items: LoopItem[], category: string): LoopItem[] {

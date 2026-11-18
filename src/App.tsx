@@ -7,6 +7,7 @@ import { LoopDetail } from "@/pages/LoopDetail";
 import { Favorites } from "@/pages/Favorites";
 import { Collections } from "@/pages/Collections";
 import { CollectionDetail } from "@/pages/CollectionDetail";
+import { Profile } from "@/pages/Profile";
 import { NotFound } from "@/pages/NotFound";
 
 export function App() {
@@ -21,6 +22,7 @@ export function App() {
         <Route path="collections" element={<Collections />} />
         <Route path="collection" element={<Navigate to="/collections" replace />} />
         <Route path="collection/:id" element={<CollectionDetail />} />
+        <Route path="profile" element={<Profile />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
