@@ -1,15 +1,26 @@
-# Local media sources and generated outputs
+# Build & dependencies
+node_modules
+dist
+dist-ssr
+*.local
+
+# Media pipeline local staging
 media/incoming/
 media/processed/
 processed/
-*.mp4
-*.mov
-*.m4v
-*.mkv
-*.webm
-*.avi
-*.mpeg
-*.mpg
 __pycache__/
 *.py[cod]
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS & Editors
 .DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea

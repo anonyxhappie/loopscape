@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-18T17:41:42.874669+00:00",
+  "items": [
+    {
+      "id": "flower-0cd83d944a6c",
+      "slug": "flower",
+      "title": "Golden Bloom",
+      "description": "An ethereal botanical bloom unfolding in continuous, radiant motion.",
+      "category": "nature",
+      "mood": "ethereal",
+      "tags": [
+        "nature",
+        "botanical",
+        "bloom",
+        "golden",
+        "organic"
+      ],
+      "creator": "Loopscape Curations",
+      "license": "Creative Commons Attribution 4.0",
+      "duration_seconds": 5.0,
+      "width": 960,
+      "height": 540,
+      "aspect_ratio": 1.778,
+      "poster": "/media/posters/flower-0cd83d944a6c.jpg",
+      "mp4": "/media/mp4/flower-0cd83d944a6c.mp4",
+      "gif": "/media/gifs/flower-0cd83d944a6c.gif",
+      "poster_bytes": 38815,
+      "mp4_bytes": 429114,
+      "published_at": "2026-11-18T17:41:42.873925+00:00",
+      "gif_bytes": 2773832
+    },
+    {
+      "id": "friday-339504acdef4",
+      "slug": "friday",
+      "title": "Friday Pulse",
+      "description": "Vibrant kinetic rhythm and motion captured in a seamless geometric loop.",
+      "category": "kinetic",
+      "mood": "kinetic",
+      "tags": [
+        "kinetic",
+        "motion",
+        "energy",
+        "pulse",
+        "rhythm"
+      ],
+      "creator": "Loopscape Curations",
+      "license": "Creative Commons Attribution 4.0",
+      "duration_seconds": 6.167,
+      "width": 640,
+      "height": 480,
+      "aspect_ratio": 1.333,
+      "poster": "/media/posters/friday-339504acdef4.jpg",
+      "mp4": "/media/mp4/friday-339504acdef4.mp4",
+      "gif": "/media/gifs/friday-339504acdef4.gif",
+      "poster_bytes": 21891,
+      "mp4_bytes": 442162,
+      "published_at": "2026-11-18T17:41:42.874521+00:00",
+      "gif_bytes": 8720778
+    },
+    {
+      "id": "gravitational-wave-loop-142f7037c486",
+      "slug": "gravitational-wave-loop",
+      "title": "Spacetime Ripple",
+      "description": "Mesmerizing gravitational wave curvature visualized in a continuous loop.",
+      "category": "science",
+      "mood": "geometric",
+      "tags": [
+        "science",
+        "astronomy",
+        "spacetime",
+        "waves",
+        "physics"
+      ],
+      "creator": "Scientific Simulation Archive",
+      "license": "Public Domain / Open Data",
+      "duration_seconds": 3.633,
+      "width": 3840,
+      "height": 2160,
+      "aspect_ratio": 1.778,
+      "poster": "/media/posters/gravitational-wave-loop-142f7037c486.jpg",
+      "mp4": "/media/mp4/gravitational-wave-loop-142f7037c486.mp4",
+      "gif": "/media/gifs/gravitational-wave-loop-142f7037c486.gif",
+      "poster_bytes": 275215,
+      "mp4_bytes": 7121491,
+      "published_at": "2026-11-18T17:41:42.874667+00:00",
+      "gif_bytes": 2299419
+    }
+  ]
+}

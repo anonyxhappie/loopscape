@@ -2,27 +2,95 @@
 
 A curated, mood-led home for short looping visuals.
 
-## Phase 1 — Static preview
+**Live at:** [loopscape.heyakshay.in](https://loopscape.heyakshay.in)
 
-The first release is a self-contained static website at **https://loopscape.heyakshay.in**.
+## Architecture
 
-- Plain HTML and CSS; no build step or JavaScript framework.
-- No database, authentication, analytics, CMS, API, external asset CDN, or third-party runtime integration.
-- The visual previews are generated with CSS, so the page has no external media dependencies.
-- Responsive layout, accessible navigation, and reduced-motion support.
-- Hosted with GitHub Pages from the `main` branch root.
+Loopscape V1 is built on a **100% client-side, static-first architecture** with browser-local persistence.
+Zero runtime backend, database, authentication, or external storage dependencies.
 
-See [the product architecture](docs/PRODUCT_DESIGN_ARCHITECTURE.md) for the staged roadmap.
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4, Motion
+- **Navigation & Routing:** React Router v7 with static SPA fallback
+- **Search & Discovery:** Client-side fuzzy search (Fuse.js) by mood, category, tags, and creator
+- **Media Engine:**
+  - Viewport-aware lazy loading via `IntersectionObserver`
+  - Priority-managed playback coordinator (max 3 simultaneous videos)
+  - WebM (VP9) primary with MP4 (H.264) compatibility fallback
+  - Silent by default with smooth loop handling
+  - Fullscreen viewing and downloadable media variants
+- **Persistence:**
+  - `localStorage` for favorites, preferences, and recently viewed
+  - `IndexedDB` for custom user collections
+  - JSON import/export with Zod schema validation
+- **Content:** Static catalogue (`public/data/catalogue.json`) generated from local ingestion pipeline
 
+## Project Structure
 
-## Phase 2 — Local media processing
+```
+├── public/
+│   ├── data/
+│   │   └── catalogue.json
+│   ├── media/
+│   │   ├── posters/
+│   │   ├── webm/
+│   │   └── mp4/
+│   ├── manifest.webmanifest
+│   ├── 404.html
+│   └── CNAME
+├── src/
+│   ├── components/      # Shell, Header, Footer, Layout
+│   ├── features/
+│   │   ├── gallery/     # Masonry gallery, LoopCard, MoodGrid
+│   │   ├── player/      # Fullscreen LoopViewer, playback controls
+│   │   └── discovery/   # Search and FilterBar
+│   ├── hooks/           # useCatalogue, useFavorites, useCollections, useIntersection
+│   ├── lib/
+│   │   ├── catalogue/   # Loader, filters, taxonomy
+│   │   ├── media/       # Formatters, codec detection
+│   │   ├── playback/    # PlaybackCoordinator
+│   │   └── storage/     # localStorage, IndexedDB, JSON import/export
+│   ├── pages/           # Home, Explore, Category, LoopDetail, Favorites, Collections
+│   ├── styles/          # Tailwind CSS theme and styles
+│   └── types/           # Zod schemas and TypeScript types
+├── scripts/
+│   ├── media_ingest.py     # Local deterministic video processor (FFmpeg/FFprobe)
+│   └── build_catalogue.py  # Static catalogue builder & media stager
+└── tests/
+    ├── catalogue.test.ts
+    ├── portability.test.ts
+    ├── test_media_ingest.py
+    └── test_build_catalogue.py
+```
 
-The local FFmpeg/FFprobe pipeline is implemented on the Phase 2 branch.
+## Getting Started
 
-Requirements: Python 3.10+, FFmpeg with FFprobe, and the libvpx-vp9 and libx264 encoders.
+### Development
 
-Run:
+```bash
+# Install dependencies
+npm install
 
-    python3 scripts/media_ingest.py --input ./media/incoming --output ./media/processed
+# Start local dev server
+npm run dev
+```
 
-Read [the media pipeline guide](docs/MEDIA_PIPELINE.md) for limits, outputs, validation, and review requirements. Generated media is local-only and excluded from Git. No cloud credentials or third-party service setup is needed.
+### Build & Test
+
+```bash
+# Run unit tests (TypeScript + Python)
+npm test
+python3 -m unittest discover -s tests -v
+
+# Build production bundle
+npm run build
+```
+
+### Media Pipeline & Ingest
+
+```bash
+# 1. Ingest raw media from incoming folder
+python3 scripts/media_ingest.py --input ./media/incoming --output ./media/processed
+
+# 2. Build static catalogue and stage media variants
+python3 scripts/build_catalogue.py --publish-all
+```

@@ -1,8 +1,12 @@
 # Loopscape — Product Design & Architecture
 
-**Status:** V1 architecture proposal  
+**Status:** Confirmed V1 Architecture Baseline (Static-First, Client-Only)  
 **Version:** 1.0  
 **Last updated:** 2026-11-18
+
+> **Architectural Decision Record (V1 Baseline):**  
+> Loopscape V1 follows a **100% static-first, client-only architecture** with browser-local persistence (localStorage + IndexedDB).  
+> Zero runtime backend, database, API server, authentication service, or object-storage dependencies. All published media and catalogue metadata are static assets hosted at `loopscape.heyakshay.in`.
 
 ## 1. Product overview
 
