@@ -1,0 +1,41 @@
+name: Media pipeline
+
+on:
+  push:
+    branches: [main, "phase-2/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Run end-to-end media smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/loopscape-input /tmp/loopscape-output
+          ffmpeg -y -v error \
+            -f lavfi -i "testsrc2=size=320x240:rate=24:duration=2" \
+            -f lavfi -i "sine=frequency=440:duration=2" \
+            -shortest -c:v libx264 -pix_fmt yuv420p -c:a aac \
+            /tmp/loopscape-input/ci-sample.mp4
+          python scripts/media_ingest.py \
+            --input /tmp/loopscape-input \
+            --output /tmp/loopscape-output \
+            --max-duration 5 --max-width 640 --max-height 480 --fps 24
+          test -s /tmp/loopscape-output/ingest-report.json
+          test -s "$(find /tmp/loopscape-output -name poster.jpg -print -quit)"
+          test -s "$(find /tmp/loopscape-output -name loop.webm -print -quit)"
+          test -s "$(find /tmp/loopscape-output -name loop.mp4 -print -quit)"
