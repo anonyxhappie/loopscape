@@ -1,0 +1,15 @@
+# Local media sources and generated outputs
+media/incoming/
+media/processed/
+processed/
+*.mp4
+*.mov
+*.m4v
+*.mkv
+*.webm
+*.avi
+*.mpeg
+*.mpg
+__pycache__/
+*.py[cod]
+.DS_Store
