@@ -29,7 +29,7 @@ export function FilterBar({
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search loops..."
+          placeholder="Search loops, cats, memes, moods..."
           className="w-full rounded-xl border border-line bg-surface py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-muted/60 focus:border-lime/40 focus:outline-none transition-colors"
         />
         {searchQuery && (

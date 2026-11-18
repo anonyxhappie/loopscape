@@ -10,7 +10,7 @@ export function Home() {
   const { items, loading } = useCatalogue();
   const { favorites, toggleFavorite } = useFavorites();
 
-  const featured = items.slice(0, 6);
+  const featured = items.slice(0, 12);
 
   return (
     <>
@@ -30,12 +30,36 @@ export function Home() {
               A curated universe of looping visuals. Find a feeling, stay for a moment,
               and let the details move.
             </p>
-            <div className="mt-8 flex items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/explore"
                 className="inline-flex items-center gap-2 rounded-full bg-lime px-5 py-3 text-sm font-bold text-background transition-transform hover:scale-105"
               >
-                Explore the loops <ArrowRight size={16} />
+                Explore all loops <ArrowRight size={16} />
+              </Link>
+              <Link
+                to="/category/cats"
+                className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface/80 px-4 py-3 text-sm font-medium text-foreground hover:border-lime/40 hover:text-lime transition-colors"
+              >
+                🐱 Cats
+              </Link>
+              <Link
+                to="/category/memes"
+                className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface/80 px-4 py-3 text-sm font-medium text-foreground hover:border-lime/40 hover:text-lime transition-colors"
+              >
+                🔥 Memes
+              </Link>
+              <Link
+                to="/category/funny"
+                className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface/80 px-4 py-3 text-sm font-medium text-foreground hover:border-lime/40 hover:text-lime transition-colors"
+              >
+                😂 Funny
+              </Link>
+              <Link
+                to="/category/viral"
+                className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface/80 px-4 py-3 text-sm font-medium text-foreground hover:border-lime/40 hover:text-lime transition-colors"
+              >
+                ⚡ Viral
               </Link>
             </div>
           </div>
