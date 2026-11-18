@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Heart, Download, Share2, Check } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useDocumentVisibility } from "@/hooks/useDocumentVisibility";
+import { getMoodConfig } from "@/lib/catalogue/moods";
 import type { LoopItem } from "@/types/catalogue";
 
 type LoopCardProps = {
@@ -202,6 +203,7 @@ export const LoopCard = memo(function LoopCard({
     >
       <Link
         to={`/loop/${item.slug}`}
+        onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "instant" })}
         className="group relative block overflow-hidden rounded-2xl border border-line bg-panel transition-all duration-300 hover:border-lime/40 hover:shadow-xl hover:shadow-lime/5"
       >
         {/* Media container */}
@@ -291,8 +293,11 @@ export const LoopCard = memo(function LoopCard({
           <span className="truncate text-sm font-medium text-foreground/90 group-hover:text-foreground">
             {item.title}
           </span>
-          <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted">
-            {item.mood || item.category}
+          <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted flex items-center gap-1">
+            {getMoodConfig(item.mood)?.emoji && (
+              <span>{getMoodConfig(item.mood)?.emoji}</span>
+            )}
+            <span>{item.mood || item.category}</span>
           </span>
         </div>
       </Link>

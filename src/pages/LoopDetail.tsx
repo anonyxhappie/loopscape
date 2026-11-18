@@ -4,10 +4,12 @@ import { ArrowLeft, Tag, Share2, Download, Check, FolderPlus } from "lucide-reac
 import { Shell } from "@/components/layout/Shell";
 import { LoopViewer } from "@/features/player/LoopViewer";
 import { LoopCard } from "@/features/gallery/LoopCard";
+import { MoodGrid } from "@/features/gallery/MoodGrid";
 import { useCatalogue } from "@/hooks/useCatalogue";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useCollections } from "@/hooks/useCollections";
 import { getLoopBySlug } from "@/lib/catalogue/loader";
+import { getMoodConfig } from "@/lib/catalogue/moods";
 import { addRecentlyViewed } from "@/lib/storage/local";
 import { formatFileSize } from "@/lib/media/format";
 
@@ -26,6 +28,11 @@ export function LoopDetail() {
   useEffect(() => {
     if (item) addRecentlyViewed(item.id);
   }, [item]);
+
+  // Instantly scroll to top whenever slug or loop changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [slug]);
 
   const related = useMemo(() => {
     if (!item) return [];
@@ -212,7 +219,12 @@ export function LoopDetail() {
             {item.mood && (
               <div className="flex justify-between border-b border-line/50 pb-2">
                 <span className="text-muted">Mood</span>
-                <span className="capitalize">{item.mood}</span>
+                <span className="flex items-center gap-1.5 capitalize">
+                  {getMoodConfig(item.mood)?.emoji && (
+                    <span>{getMoodConfig(item.mood)?.emoji}</span>
+                  )}
+                  <span>{item.mood}</span>
+                </span>
               </div>
             )}
             <div className="flex justify-between border-b border-line/50 pb-2">
@@ -269,6 +281,19 @@ export function LoopDetail() {
           </div>
         </div>
       )}
+
+      {/* Explore other moods bottom list */}
+      <div className="mt-20 border-t border-line pt-12">
+        <div className="mb-6">
+          <p className="text-[11px] font-bold uppercase tracking-[0.19em] text-lime">
+            Atmosphere
+          </p>
+          <h2 className="mt-2 text-xl font-medium tracking-tight">
+            Explore more moods
+          </h2>
+        </div>
+        <MoodGrid />
+      </div>
     </Shell>
   );
 }
