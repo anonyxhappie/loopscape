@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Fuse from "fuse.js";
+import { Share2, Check } from "lucide-react";
 import { Shell } from "@/components/layout/Shell";
 import { Gallery } from "@/features/gallery/Gallery";
 import { FilterBar } from "@/features/discovery/FilterBar";
@@ -16,6 +17,7 @@ export function Explore() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [activeMood, setActiveMood] = useState(searchParams.get("mood") || "");
   const [activeCategory, setActiveCategory] = useState(searchParams.get("category") || "");
+  const [copied, setCopied] = useState(false);
 
   // Sync URL params
   useEffect(() => {
@@ -53,13 +55,71 @@ export function Explore() {
     return results;
   }, [items, fuse, searchQuery, activeMood, activeCategory]);
 
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+    const shareTitle = "Loopscape — Explore Loops";
+    let shareText = "Check out these curated looping visuals on Loopscape!";
+    if (activeMood) shareText = `Explore ${activeMood} loops on Loopscape!`;
+    if (activeCategory) shareText = `Explore ${activeCategory} loops on Loopscape!`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch {
+        // Fallback to clipboard if native share sheet is cancelled or fails
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.warn("Failed to copy URL:", err);
+    }
+  };
+
   return (
     <Shell className="py-10 sm:py-14">
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Explore</h1>
-        <p className="mt-2 text-sm text-muted">
-          {loading ? "Loading..." : `${filtered.length} loop${filtered.length !== 1 ? "s" : ""}`}
-        </p>
+      {/* Header with Share link action */}
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Explore</h1>
+          <p className="mt-2 text-sm text-muted">
+            {loading ? "Loading..." : `${filtered.length} loop${filtered.length !== 1 ? "s" : ""}`}
+            {activeMood && (
+              <span>
+                {" "}· Mood: <strong className="capitalize text-foreground">{activeMood}</strong>
+              </span>
+            )}
+            {activeCategory && (
+              <span>
+                {" "}· Category: <strong className="capitalize text-foreground">{activeCategory}</strong>
+              </span>
+            )}
+            {searchQuery && (
+              <span>
+                {" "}· Search: &ldquo;<strong className="text-foreground">{searchQuery}</strong>&rdquo;
+              </span>
+            )}
+          </p>
+        </div>
+
+        {/* Share Link button */}
+        <button
+          onClick={handleShare}
+          className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-xs font-semibold text-foreground transition-all hover:border-lime/40 hover:text-lime self-start sm:self-auto shadow-sm"
+          aria-label="Share explore link"
+          title="Share explore link"
+        >
+          {copied ? <Check size={14} className="text-lime" /> : <Share2 size={14} />}
+          <span>{copied ? "Link Copied!" : "Share Link"}</span>
+        </button>
       </div>
 
       <div className="mb-8">

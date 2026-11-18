@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useCallback, memo } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Download } from "lucide-react";
+import { Heart, Download, Share2, Check } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useDocumentVisibility } from "@/hooks/useDocumentVisibility";
 import type { LoopItem } from "@/types/catalogue";
@@ -16,15 +16,91 @@ export const LoopCard = memo(function LoopCard({
   isFavorite,
   onToggleFavorite,
 }: LoopCardProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const reducedMotion = useReducedMotion();
   const documentVisible = useDocumentVisibility();
+
   const [isHovered, setIsHovered] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const [shared, setShared] = useState(false);
 
   const gifUrl = item.gif || `/media/gifs/${item.id}.gif`;
 
-  // Pause immediately if window loses focus / tab hidden
+  // Detect touch/mobile environment (where mouse hover does not exist)
+  useEffect(() => {
+    const checkTouch = () => {
+      const touchMatch =
+        typeof window !== "undefined" &&
+        (window.matchMedia("(hover: none)").matches ||
+          "ontouchstart" in window ||
+          navigator.maxTouchPoints > 0);
+      setIsTouchDevice(touchMatch);
+    };
+
+    checkTouch();
+    const mql = window.matchMedia("(hover: none)");
+    mql.addEventListener?.("change", checkTouch);
+    return () => mql.removeEventListener?.("change", checkTouch);
+  }, []);
+
+  // IntersectionObserver for mobile in-view detection
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry?.isIntersecting ?? false);
+      },
+      {
+        threshold: 0.4, // At least 40% of the loop is visible on the screen
+        rootMargin: "0px 0px 0px 0px",
+      },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Mobile / Touch behavior: Autoplay when loop scrolls into the viewport
+  useEffect(() => {
+    if (!isTouchDevice) return;
+
+    const video = videoRef.current;
+    if (!video || reducedMotion || !documentVisible) {
+      if (video && !video.paused) {
+        video.pause();
+        setIsPlaying(false);
+      }
+      return;
+    }
+
+    if (isInView) {
+      video.muted = true;
+      video
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {
+          // Some browsers restrict autoplay until initial touch; fallback to poster
+          setIsPlaying(false);
+        });
+    } else {
+      if (!video.paused) {
+        video.pause();
+        try {
+          video.currentTime = 0;
+        } catch {
+          // ignore
+        }
+      }
+      setIsPlaying(false);
+    }
+  }, [isTouchDevice, isInView, documentVisible, reducedMotion]);
+
+  // Tab visibility / reduced motion guard
   useEffect(() => {
     if (!documentVisible || reducedMotion) {
       if (videoRef.current && !videoRef.current.paused) {
@@ -34,8 +110,9 @@ export const LoopCard = memo(function LoopCard({
     }
   }, [documentVisible, reducedMotion]);
 
+  // Desktop behavior: Play on mouse enter
   const handleMouseEnter = useCallback(() => {
-    if (reducedMotion) return;
+    if (isTouchDevice || reducedMotion) return;
     setIsHovered(true);
 
     const video = videoRef.current;
@@ -49,9 +126,11 @@ export const LoopCard = memo(function LoopCard({
           setIsPlaying(false);
         });
     }
-  }, [reducedMotion]);
+  }, [isTouchDevice, reducedMotion]);
 
+  // Desktop behavior: Pause on mouse leave
   const handleMouseLeave = useCallback(() => {
+    if (isTouchDevice) return;
     setIsHovered(false);
     setIsPlaying(false);
 
@@ -61,10 +140,42 @@ export const LoopCard = memo(function LoopCard({
       try {
         video.currentTime = 0; // reset to beginning for true GIF feel
       } catch {
-        // ignore if not ready
+        // ignore
       }
     }
-  }, []);
+  }, [isTouchDevice]);
+
+  // Quick Share handler
+  const handleShareClick = useCallback(
+    async (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const loopUrl = `${window.location.origin}/loop/${item.slug}`;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: `${item.title} — Loopscape`,
+            text: item.description || `Check out ${item.title} on Loopscape`,
+            url: loopUrl,
+          });
+          return;
+        } catch {
+          // User cancelled native share sheet or unsupported; fallback to clipboard
+        }
+      }
+
+      try {
+        await navigator.clipboard.writeText(loopUrl);
+        setShared(true);
+        setTimeout(() => setShared(false), 2000);
+      } catch (err) {
+        console.warn("Failed to copy link:", err);
+      }
+    },
+    [item.slug, item.title, item.description],
+  );
 
   const handleFavoriteClick = useCallback(
     (e: React.MouseEvent) => {
@@ -80,9 +191,11 @@ export const LoopCard = memo(function LoopCard({
   }, []);
 
   const aspectPadding = `${(item.height / item.width) * 100}%`;
+  const isCurrentlyShowingVideo = isTouchDevice ? isPlaying : isHovered && isPlaying;
 
   return (
     <div
+      ref={containerRef}
       className="masonry-item"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -96,29 +209,29 @@ export const LoopCard = memo(function LoopCard({
           className="relative w-full overflow-hidden bg-surface"
           style={{ paddingBottom: aspectPadding }}
         >
-          {/* Static poster displayed until hovered */}
+          {/* Static poster displayed until video stream starts */}
           <img
             src={item.poster}
             alt={item.title}
             loading="lazy"
             decoding="async"
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-200 pointer-events-none ${
-              isHovered && isPlaying ? "opacity-0" : "opacity-100"
+              isCurrentlyShowingVideo ? "opacity-0" : "opacity-100"
             }`}
           />
 
-          {/* Video preview: plays seamlessly on hover */}
+          {/* Video preview: plays on hover (desktop) or in viewport (mobile) */}
           {!reducedMotion && (
             <video
               ref={videoRef}
               muted
               loop
               playsInline
-              preload="none"
+              preload={isTouchDevice ? "metadata" : "none"}
               poster={item.poster}
               src={item.mp4}
               className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-200 ${
-                isHovered && isPlaying ? "opacity-100" : "opacity-0"
+                isCurrentlyShowingVideo ? "opacity-100" : "opacity-0"
               }`}
             />
           )}
@@ -134,8 +247,20 @@ export const LoopCard = memo(function LoopCard({
             )}
           </div>
 
-          {/* Quick action buttons (top right) */}
-          <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 focus-within:opacity-100">
+          {/* Quick action buttons (top right) - visible on touch/mobile, hover on desktop */}
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
+            {/* Quick Share Link button */}
+            <button
+              onClick={handleShareClick}
+              className={`grid h-8 w-8 place-items-center rounded-full bg-black/60 backdrop-blur-md transition-all hover:bg-black/80 ${
+                shared ? "text-lime" : "text-white/80 hover:text-lime"
+              }`}
+              aria-label={shared ? "Link Copied!" : "Share Loop"}
+              title={shared ? "Link Copied!" : "Share Loop"}
+            >
+              {shared ? <Check size={14} /> : <Share2 size={14} />}
+            </button>
+
             {/* Quick GIF Download button */}
             <a
               href={gifUrl}
