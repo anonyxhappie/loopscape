@@ -414,3 +414,42 @@ loopscape/
 ```
 
 Recommended implementation order: rights workflow and schema first, deterministic media pipeline second, poster-first gallery UI third. This reduces the risk of building a polished frontend around unresolved licensing or media-delivery assumptions.
+
+
+## Phase 1 — Live static page (revised first milestone)
+
+**The immediate deliverable is a live public webpage at https://loopscape.heyakshay.in, not the full data-backed gallery described in later phases.**
+
+### Hard constraints
+
+- No third-party integration setup: no Supabase, R2, Cloudflare account, analytics, auth provider, CMS, API keys, external media CDN, or backend service.
+- No build toolchain or package installation. The initial page is plain HTML and CSS served as static files.
+- Use CSS-generated motion artwork/placeholders for the first impression; do not depend on remote images, video, fonts, or scripts.
+- Responsive, accessible, SEO/share metadata, keyboard navigation, and `prefers-reduced-motion` support.
+- GitHub Pages is the hosting target using the repository's `main` branch and root folder.
+
+### Phase 1 deployment
+
+1. Keep `index.html` and `CNAME` in the repository root.
+2. In GitHub repository Settings → Pages, select **Deploy from a branch**, branch `main`, folder `/ (root)`.
+3. Configure the DNS record at the domain provider:
+   - Type: `CNAME`
+   - Name/Host: `loopscape`
+   - Target: `anonyxhappie.github.io`
+4. Wait for DNS propagation, then enable **Enforce HTTPS** in GitHub Pages.
+5. Verify `https://loopscape.heyakshay.in` and the canonical hostname.
+
+GitHub Pages activation and DNS configuration are one-time hosting/domain settings; they are not application integrations. DNS access is required to make the custom domain resolve.
+
+### Phase 1 acceptance criteria
+
+- [ ] The custom domain serves the page over HTTPS.
+- [ ] The page renders on desktop and mobile without a build step.
+- [ ] No external network requests are required for core rendering.
+- [ ] No credentials, database, analytics, user accounts, or backend are present.
+- [ ] Reduced-motion preference disables decorative animation.
+- [ ] The initial visual collection is clearly labelled as a preview/demo, not a live asset catalogue.
+
+### Deferred until a later phase
+
+Real video assets and their rights/provenance workflow, search, mood filtering, detail pages, download handling, admin publishing, analytics, database, object storage, and media processing. These should be introduced only when the static preview has been reviewed and the next milestone is approved.
