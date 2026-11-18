@@ -453,3 +453,31 @@ GitHub Pages activation and DNS configuration are one-time hosting/domain settin
 ### Deferred until a later phase
 
 Real video assets and their rights/provenance workflow, search, mood filtering, detail pages, download handling, admin publishing, analytics, database, object storage, and media processing. These should be introduced only when the static preview has been reviewed and the next milestone is approved.
+
+
+## Phase 2 — Local-first media pipeline implementation
+
+The Phase 2 roadmap item is implemented first as a local CLI rather than a hosted worker. This preserves the Phase 1 constraint: no third-party service account, API key, database, object storage, or backend is required to prepare media.
+
+- Entry point: `scripts/media_ingest.py`
+- Operating guide: `docs/MEDIA_PIPELINE.md`
+- Tests: `tests/test_media_ingest.py`
+- CI: `.github/workflows/media-pipeline.yml`
+
+The CLI uses Python standard library code plus locally installed FFmpeg/FFprobe. It probes and rejects unsupported or invalid sources, enforces file-size/duration/dimension/frame-rate limits, creates a JPEG poster and silent VP9 WebM/H.264 MP4 variants, decodes the generated outputs for validation, computes SHA-256 checksums, and writes versioned local asset directories with JSON manifests and an aggregate report.
+
+Every output is marked `processed_pending_review`. Rights are unknown, seam review is pending, and publication approval is false. Human rights and visual review remain mandatory. A technically decodable video is not necessarily a seamless loop or legally publishable.
+
+### Revised Phase 2 exit gate
+
+- [ ] Unit tests pass.
+- [ ] CI FFmpeg smoke test passes on a synthetic source containing video and audio.
+- [ ] A representative real-world corpus is processed and manually inspected.
+- [ ] Invalid, oversized, too-long, and unsupported inputs are rejected.
+- [ ] WebM/MP4 outputs decode fully and contain no audio.
+- [ ] Poster and manifest metadata are complete.
+- [ ] Rights and seam-review states remain unpublished until explicitly approved.
+
+### Explicitly deferred
+
+Cloud object storage uploads, database persistence, public media URLs, CDN caching, browser gallery playback, and curator UI are not part of this local Phase 2 increment. The manifest is the stable handoff contract for a later storage/catalog adapter.
